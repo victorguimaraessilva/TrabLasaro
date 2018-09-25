@@ -6,8 +6,8 @@ import sys
 
 keys = []
 bytes = []
-
 database = {'keys': keys, 'bytes': bytes}
+
 
 def databaser(comand, key, value):
 
@@ -24,7 +24,8 @@ def databaser(comand, key, value):
         if len(keys) > 0:
             for key in keys:
                 print('[IDX:'+str(key)+'] - '+str(database['bytes'][key])+'')
-                response.append(str('[IDX:'+str(key)+'] - '+str(database['bytes'][key])+''))
+                msg = str('[IDX:'+str(key)+'] - '+str(database['bytes'][key]))
+                response.append(msg)
         else:
             print("\n Tabela vazia")
             return str("\n Tabela vazia")
@@ -41,7 +42,6 @@ def databaser(comand, key, value):
         database['bytes'].append(bytearray(value, 'utf8'))
         print("\n Registro Adicionado")
         return str("\n Registro Adicionado")
-
 
     if comand == 'update':
         # limpa a tela para evitar excesso de informação
@@ -69,8 +69,7 @@ def databaser(comand, key, value):
             print("\n Chave não encontrada")
             return str("\n Chave não encontrada")
 
-
-    #print('[DB] Key: '+str(key))
+    # print('[DB] Key: '+str(key))
 
 
 def server():
@@ -138,7 +137,7 @@ def clear():
 if __name__ == "__main__":
     # Verifica se a execução do python começou nesse arquivo
 
-    t1 = Thread(target = server)
+    t1 = Thread(target=server)
     t1.setDaemon(True)
     t1.start()
     t1.join()

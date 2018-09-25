@@ -24,7 +24,7 @@ def menu():
         if opt == "1":
 
             # cria uma thread para executar a operação separadamente
-            thread2 = Thread(target = send_message, args = ('select','',''))
+            thread2 = Thread(target=send_message, args=('select', '', ''))
             thread2.start()
             thread2.join()
 
@@ -33,7 +33,7 @@ def menu():
             value = input("Valor a ser adicionado: ")
 
             # cria uma thread para executar a operação separadamente
-            thread3 = Thread(target = send_message, args = ('insert', '', value))
+            thread3 = Thread(target=send_message, args=('insert', '', value))
             thread3.start()
             thread3.join()
 
@@ -43,7 +43,7 @@ def menu():
             value = input("Digite o novo valor: ")
 
             # cria uma thread para executar a operação separadamente
-            thread4 = Thread(target = send_message, args = ('update', key, value))
+            thread4 = Thread(target=send_message, args=('update', key, value))
             thread4.start()
             thread4.join()
 
@@ -52,7 +52,7 @@ def menu():
             key = input("Digite a chave a ser deletada: ")
 
             # cria uma thread para executar a operação separadamente
-            thread5 = Thread(target = send_message, args = ('delete', key, ''))
+            thread5 = Thread(target=send_message, args=('delete', key, ''))
             thread5.start()
             thread5.join()
 
@@ -61,43 +61,43 @@ def menu():
             print("\n Fechando conexão")
             stop = True
 
-        elif opt !="":
+        elif opt != "":
 
             print("\n Digite um comando válido")
 
 
-def send_message(option,key,value):
+def send_message(option, key, value):
     ''' Envia para o server.py as mensagens de CRUD através da porta 10001 '''
 
-	message = str(option)+"/"+str(key)+"/"+str(value)
+    message = str(option)+"/"+str(key)+"/"+str(value)
 
-	sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     # cria um socket TCP que será utilizado para estabelecer a conexão
 
-	server_address = ('localhost', 10001)
-	print('Conectando a: {} porta: {}'.format(*server_address))
-	sock.connect(server_address)
+    server_address = ('localhost', 10001)
+    print('Conectando a: {} porta: {}'.format(*server_address))
+    sock.connect(server_address)
     # conectando no socket através da porta especificada
 
-	try:
-		print('enviando {!r}'.format(message))
-		sock.sendall(message.encode('utf-8'))
+    try:
+        print('enviando {!r}'.format(message))
+        sock.sendall(message.encode('utf-8'))
 
-		amount_received = 0
-		amount_expected = len(message)
+        amount_received = 0
+        amount_expected = len(message)
 
         '''
             vai lendo o socket de 1024 em 1024 bytes para não
             correr o risco de exceder o limite da pilha de memória
         '''
-		while amount_received < amount_expected:
-			data = sock.recv(1024)
-			amount_received += len(data)
-			print('recebendo {!r}'.format(data))
+        while amount_received < amount_expected:
+            data = sock.recv(1024)
+            amount_received += len(data)
+            print('recebendo {!r}'.format(data))
 
-	finally:
-		print('Fechando conexão')
-		sock.close()
+    finally:
+        print('Fechando conexão')
+        sock.close()
 
 
 def clear():
@@ -109,7 +109,7 @@ def clear():
 if __name__ == "__main__":
     # Verifica se a execução do python começou nesse arquivo
 
-    t1 = Thread(target = menu)
+    t1 = Thread(target=menu)
     t1.setDaemon(True)
     t1.start()
     t1.join()
