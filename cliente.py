@@ -1,3 +1,4 @@
+# coding: utf-8
 from threading import Thread
 
 keys = []
@@ -33,7 +34,6 @@ def databaser(comand, key, value):
         database['bytes'].append(bytearray(value, 'utf8'))
         print("\n Registro Adicionado")
 
-
     if comand == 'update':
 
         clear()
@@ -54,10 +54,8 @@ def databaser(comand, key, value):
             print("\n Registro Excluído")
         except Exception:
             print("\n Chave não encontrada")
-         
 
-
-    #print('[DB] Key: '+str(key))
+    # print('[DB] Key: '+str(key))
 
 
 def menu():
@@ -76,26 +74,26 @@ def menu():
 
         opt = input("Selecione uma opção:")
 
-        if opt == "1": 
+        if opt == "1":
 
-            thread2 = Thread(target = databaser, args = ('select','',''))
+            thread2 = Thread(target=databaser, args=('select', '', ''))
             thread2.start()
             thread2.join()
 
         elif opt == "2":
-            
+
             value = input("Valor a ser adicionado:")
 
-            thread3 = Thread(target = databaser, args = ('insert', '', value))
+            thread3 = Thread(target=databaser, args=('insert', '', value))
             thread3.start()
             thread3.join()
-            
+
         elif opt == "3":
 
             key = input("Digite a chave a ser atualizada:")
             value = input("Digite o novo valor:")
 
-            thread3 = Thread(target = databaser, args = ('update', key, value))
+            thread3 = Thread(target=databaser, args=('update', key, value))
             thread3.start()
             thread3.join()
 
@@ -103,18 +101,18 @@ def menu():
 
             key = input("Digite a chave a ser deletada:")
 
-            thread4 = Thread(target = databaser, args = ('delete', key, ''))
+            thread4 = Thread(target=databaser, args=('delete', key, ''))
             thread4.start()
             thread4.join()
 
         elif opt == "5":
 
             print("\n Fechando conexão")
-            stop = True 
+            stop = True
 
-        elif opt !="":
+        elif opt != "":
 
-            print("\n Digite um comando válido") 
+            print("\n Digite um comando válido")
 
 
 def clear():
@@ -124,7 +122,7 @@ def clear():
 
 if __name__ == "__main__":
 
-    t1 = Thread(target = menu)
+    t1 = Thread(target=menu)
     t1.setDaemon(True)
     t1.start()
     t1.join()
