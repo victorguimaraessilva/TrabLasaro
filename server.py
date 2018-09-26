@@ -3,6 +3,7 @@ from threading import Thread
 import socket
 import sys
 import os.path
+import os
 
 
 keys = []
@@ -77,17 +78,24 @@ def databaser(comand, key, value):
 
 def server():
 
-    file = None
+    if os.path.isfile('db.txt'):
+        try:
+            file = open('db.txt', 'r')
 
-    if not os.path.isfile('my.db'):
-        file = open('my.db', 'w')
-    else:
-        file = open('my.db', 'rw')
+            for line in file.readlines():
+                message = line.split('\n')[0].split("/")
+                comand = message[0]
+                key = message[1]
+                value = message[2]
+                databaser(comand, key, value)
+
+            file.close()
+        except:
+            print('erro ao abrir arquivo')
+
+    file = open('db.txt', 'a')
 
     try:
-
-        for line in file.readlines():
-            operations.append(line)
         # cria um socket para comunicação via TCP
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         sock.settimeout(5)
@@ -118,13 +126,14 @@ def server():
                     if data:
                         # caso tenha dados na conexão, tenta decodificar
                         comands = data.decode("UTF-8")
-                        operations.append(comands)
                         # separa os comandos para identificar o que deve ser feito
                         message = str(comands).split("/")
                         comand = message[0]
                         key = message[1]
                         value = message[2]
 
+                        if comand in ['insert', 'update', 'delete']:
+                            operations.append(comands)
                         # chama a função que executa os comandos
                         back_message = databaser(comand, key, value)
 
@@ -142,11 +151,13 @@ def server():
                 # fecha a conexão do socket
                 connection.close()
     except:
-        if file:
-            file.write('\n'.join(operations))
+        print('Timeout de 5 segundos atingido')
     finally:
-        if file:
-            file.close()
+        if operations:
+            for operation in operations:
+                file.writelines(operation)
+            file.write('\n')
+        file.close()
 
 
 def clear():
