@@ -2,11 +2,13 @@
 from threading import Thread
 import socket
 import sys
+import os.path
 
 
 keys = []
 bytes = []
 database = {'keys': keys, 'bytes': bytes}
+operations = []
 
 
 def databaser(comand, key, value):
@@ -16,26 +18,27 @@ def databaser(comand, key, value):
     if comand == 'select':
         # limpa a tela para evitar excesso de informação
         clear()
-        print("[DB] Listing:")
+        print("[DB] SELECT:")
 
         keys = database['keys']
         response = []
 
         if len(keys) > 0:
             for key in keys:
-                print('[IDX:'+str(key)+'] - '+str(database['bytes'][key])+'')
-                msg = str('[IDX:'+str(key)+'] - '+str(database['bytes'][key]))
+                msg = 'id {0}: <{1}>'.format(key, database['bytes'][key])
+                print(msg)
                 response.append(msg)
         else:
-            print("\n Tabela vazia")
-            return str("\n Tabela vazia")
+            msg = "Tabela vazia"
+            print(msg)
+            response = [msg]
 
-        return response
+        return ', '.join(response)
 
     if comand == 'insert':
         # limpa a tela para evitar excesso de informação
         clear()
-        print('[DB] Inserting: '+str(value))
+        print('[DB] INSERT: '+str(value))
 
         count = len(database['keys'])
         database['keys'].append(count)
@@ -46,7 +49,7 @@ def databaser(comand, key, value):
     if comand == 'update':
         # limpa a tela para evitar excesso de informação
         clear()
-        print('[DB] Updating Key: '+str(key))
+        print('[DB] UPDATE: key '+str(key))
 
         try:
             database['bytes'][int(key)] = bytearray(value, 'utf8')
@@ -59,7 +62,7 @@ def databaser(comand, key, value):
     if comand == 'delete':
         # limpa a tela para evitar excesso de informação
         clear()
-        print('[DB] Deleting Key: '+str(key))
+        print('[DB] DELETE: key '+str(key))
 
         try:
             database['bytes'][int(key)] = None
@@ -74,57 +77,76 @@ def databaser(comand, key, value):
 
 def server():
 
-    # cria um socket para comunicação via TCP
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    file = None
 
-    # configura o socket para receber comandos na porta 10001
-    server_address = ('localhost', 10001)
-    print('Iniciando conexão na {} porta {}'.format(*server_address))
-    sock.bind(server_address)
+    if not os.path.isfile('my.db'):
+        file = open('my.db', 'w')
+    else:
+        file = open('my.db', 'rw')
 
-    # começa a escutar
-    sock.listen(1)
+    try:
 
-    while True:
+        for line in file.readlines():
+            operations.append(line)
+        # cria um socket para comunicação via TCP
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(5)
 
-        print('Esperando por conexões')
-        connection, client_address = sock.accept()
+        # configura o socket para receber comandos na porta 10001
+        server_address = ('localhost', 10001)
+        print('Iniciando conexão na {} porta {}'.format(*server_address))
+        sock.bind(server_address)
 
-        try:
-            print('Conexão de', client_address)
+        # começa a escutar
+        sock.listen(1)
 
-            while True:
+        while True:
 
-                # tenta ler o socket
-                data = connection.recv(1024)
+            print('Esperando por conexões')
+            connection, client_address = sock.accept()
 
-                print('recebido {!r}'.format(data))
+            try:
+                print('Conexão de', client_address)
 
-                if data:
-                    # caso tenha dados na conexão, tenta decodificar
-                    comands = data.decode("UTF-8")
-                    # separa os comandos para identificar o que deve ser feito
-                    message = str(comands).split("/")
-                    comand = message[0]
-                    key = message[1]
-                    value = message[2]
+                while True:
 
-                    # chama a função que executa os comandos
-                    back_message = databaser(comand, key, value)
+                    # tenta ler o socket
+                    data = connection.recv(1024)
 
-                    # se o retorno for uma lista, transforma em string
-                    if (type(back_message) == list):
-                        back_message = ''.join(back_message)
+                    print('recebido {!r}'.format(data))
 
-                    print('enviando dados para o cliente')
-                    connection.sendall(back_message.encode("UTF-8"))
-                else:
-                    print('no data from', client_address)
-                    break
+                    if data:
+                        # caso tenha dados na conexão, tenta decodificar
+                        comands = data.decode("UTF-8")
+                        operations.append(comands)
+                        # separa os comandos para identificar o que deve ser feito
+                        message = str(comands).split("/")
+                        comand = message[0]
+                        key = message[1]
+                        value = message[2]
 
-        finally:
-            # fecha a conexão do socket
-            connection.close()
+                        # chama a função que executa os comandos
+                        back_message = databaser(comand, key, value)
+
+                        # se o retorno for uma lista, transforma em string
+                        if (type(back_message) == list):
+                            back_message = ''.join(back_message)
+
+                        print('enviando dados para o cliente')
+                        connection.sendall(back_message.encode("UTF-8"))
+                    else:
+                        print('no data from', client_address)
+                        break
+
+            finally:
+                # fecha a conexão do socket
+                connection.close()
+    except:
+        if file:
+            file.write('\n'.join(operations))
+    finally:
+        if file:
+            file.close()
 
 
 def clear():

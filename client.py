@@ -29,13 +29,14 @@ def menu():
             thread2.join()
 
         elif opt == "2":
-
-            value = input("Valor a ser adicionado: ")
-
-            # cria uma thread para executar a operação separadamente
-            thread3 = Thread(target=send_message, args=('insert', '', value))
-            thread3.start()
-            thread3.join()
+            try:
+                value = input("Valor a ser adicionado: ")
+                # cria uma thread para executar a operação separadamente
+                thread3 = Thread(target=send_message, args=('insert', '', value))
+                thread3.start()
+                thread3.join()
+            except:
+                print('Valor inválido')
 
         elif opt == "3":
 
