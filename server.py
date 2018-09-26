@@ -82,8 +82,8 @@ def server():
         try:
             file = open('db.txt', 'r')
 
-            for line in file.readlines():
-                message = line.split('\n')[0].split("/")
+            for line in file.read().split('\n'):
+                message = line.split("/")
                 comand = message[0]
                 key = message[1]
                 value = message[2]
