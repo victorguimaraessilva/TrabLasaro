@@ -13,13 +13,13 @@ def databaser(comand, key, value):
     if comand == 'select':
         # limpa a tela para evitar excesso de informação
         clear()
-        print("[DB] Listing:")
+        print("[DB] Listando chave: "+str(key))
 
         msg = ''
 
         result = database.get(str(key))
         if result:
-            msg = '[IDX:'+str(key)+'] - '+str(database[key])
+            msg = 'OK - Chave ' + key + ' / valor: ' + str(database[key])
         else:
             msg = 'NOK - Chave ' + key + ' não tem valores atribuídos'
 
@@ -29,40 +29,52 @@ def databaser(comand, key, value):
     if comand == 'insert':
         # limpa a tela para evitar excesso de informação
         clear()
-        print('[DB] Inserting: '+str(value))
+        print('[DB] Inserindo chave: '+str(key)+' / valor: '+str(value))
 
-        count = len(database['keys'])
-        database['keys'].append(count)
-        database['bytes'].append(bytearray(value, 'utf8'))
-        print("\n Registro Adicionado")
-        return str("\n Registro Adicionado")
+        result = database.get(str(key))
+        if result:
+            database[key] = bytearray(value, 'utf8')
+            msg = "\n OK - Registro Adicionado"
+        else:
+            msg =  "\n NOK - Já existe um registro com essa chave"
+
+        print(msg)
+        return msg
 
 
     if comand == 'update':
         # limpa a tela para evitar excesso de informação
         clear()
-        print('[DB] Updating Key: '+str(key))
+        print('[DB] Atualizando chave: '+str(key))
 
-        try:
-            database['bytes'][int(key)] = bytearray(value, 'utf8')
-            print("\n Registro Atualizado")
-            return str("\n Registro Atualizado")
-        except Exception:
-            print("\n Chave não encontrada")
-            return str("\n Chave não encontrada")
+        result = database.get(str(key))
+        msg = ''
+
+        if result:
+            database[key] = bytearray(value, 'utf8')
+            msg =  "\n OK - Registro Atualizado"
+        else:
+            msg =  "\n NOK - Chave não encontrada"
+
+        print(msg)
+        return msg
 
     if comand == 'delete':
         # limpa a tela para evitar excesso de informação
         clear()
-        print('[DB] Deleting Key: '+str(key))
+        print('[DB] Removendo chave: '+str(key))
 
-        try:
-            database['bytes'][int(key)] = None
-            print("\n Registro Excluído")
-            return str("\n Registro Excluído")
+        result = database.get(str(key))
+        msg = ''
+
+        if result:
+            database.pop(key)
+            msg = "\n Registro Excluído"
         except Exception:
-            print("\n Chave não encontrada")
-            return str("\n Chave não encontrada")
+            msg = "\n NOK - Chave não encontrada"
+
+        print(msg)
+        return msg
 
     #print('[DB] Key: '+str(key))
 
